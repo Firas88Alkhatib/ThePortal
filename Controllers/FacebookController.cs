@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using ThePortal.Models;
@@ -12,8 +11,6 @@ using ThePortal.Services.FacebookService;
 namespace ThePortal.Controllers
 
 {
-    
-   
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
@@ -21,13 +18,13 @@ namespace ThePortal.Controllers
     {
         private readonly IFacebookService _facebookService;
         private readonly ApplicationUserManager _userManager;
-        private readonly ApplicationDbContext _db ;
-        public FacebookController(IFacebookService facebookService,ApplicationUserManager userManager,ApplicationDbContext db)
+
+        public FacebookController(IFacebookService facebookService, ApplicationUserManager userManager)
         {
             _facebookService = facebookService;
             _userManager = userManager;
-            _db = db;
         }
+
         [HttpGet]
         public async Task<IActionResult> Test()
         {
@@ -37,7 +34,7 @@ namespace ThePortal.Controllers
 
             return Ok(ads);
         }
-        
+
         [HttpGet]
         [Route("AdAccounts")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(FacebookAccount[]))]
@@ -52,13 +49,11 @@ namespace ThePortal.Controllers
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
-                
             }
-            
         }
 
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK,Type = typeof(FacebookAccessTokenResponse))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(FacebookAccessTokenResponse))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
         public async Task<IActionResult> ExchangeAcessToken([FromBody] ExchangeAcessTokenRequestModel token)
         {
@@ -69,7 +64,6 @@ namespace ThePortal.Controllers
 
             try
             {
-
                 ApplicationUser user = await _userManager.FindByIdAsync(User.FindFirstValue("Id"));
                 var longAccessTokenResponse = await _facebookService.GetLonglivedAccessToken(token.AccessToken);
                 var facebookdata = await _userManager.UpdateFacebookAccessTokenAsync(user.Id, longAccessTokenResponse.AccessToken);
@@ -80,7 +74,6 @@ namespace ThePortal.Controllers
             {
                 return BadRequest(err.Message);
             }
-            
         }
     }
 }

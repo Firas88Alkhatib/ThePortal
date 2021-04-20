@@ -11,6 +11,6 @@ namespace ThePortal.Services.GoogleService
     }
     public class GoogleService : IGoogleService
     {
-
+        
     }
 }

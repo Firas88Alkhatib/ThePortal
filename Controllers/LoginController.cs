@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using ThePortal.Models;
@@ -12,31 +12,52 @@ namespace ThePortal.Controllers
     public class LoginController : ControllerBase
     {
         private readonly IAuthenticationService _auth;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ApplicationUserManager _userManager;
 
-        public LoginController(IAuthenticationService auth,UserManager<ApplicationUser> userManager)
+        public LoginController(IAuthenticationService auth, ApplicationUserManager userManager)
         {
             _auth = auth;
             _userManager = userManager;
         }
 
         [HttpPost]
-        public async Task<AuthenticationResponse> Login([FromBody] LoginModel loginModel)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthenticationResponse))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(AuthenticationResponse))]
+        public async Task<IActionResult> Login([FromBody] UserLoginDto loginDto)
         {
             if (!ModelState.IsValid)
             {
-                return new AuthenticationResponse()
+                return BadRequest(new AuthenticationResponse()
                 {
                     Success = false,
                     Error = "Invalid request"
-                };
+                });
             }
 
-            var accessToken = await _auth.Login(loginModel);
-            return new AuthenticationResponse() {
+            ApplicationUser user = await _userManager.FindByEmailAsync(loginDto.Email);
+            if (user == null)
+            {
+                return BadRequest(new AuthenticationResponse()
+                {
+                    Success = false,
+                    Error = "user not found",
+                });
+            }
+            bool passwordCorrect = await _userManager.CheckPasswordAsync(user, loginDto.Password);
+            if (!passwordCorrect)
+            {
+                return BadRequest(new AuthenticationResponse()
+                {
+                    Success = false,
+                    Error = "Incorrect password",
+                });
+            }
+            var accessToken = _auth.GenerateAccessToken(user);
+            return Ok(new AuthenticationResponse()
+            {
                 Success = true,
                 AccessToken = accessToken
-            };
+            });
         }
     }
 }

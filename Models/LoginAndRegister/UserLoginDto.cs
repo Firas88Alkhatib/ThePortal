@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ThePortal.Models.Authentication
 {
-    public class LoginModel
+    public class UserLoginDto
     {
         [Required]
         [EmailAddress]
