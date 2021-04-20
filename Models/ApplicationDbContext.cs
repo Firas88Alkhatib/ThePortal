@@ -18,6 +18,7 @@ namespace ThePortal.Models
        
         public DbSet<FacebookData> FacebookData { get; set; }
         public DbSet<GoogleData> GoogleData { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
 
     }
 }

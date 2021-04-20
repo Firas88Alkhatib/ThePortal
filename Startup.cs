@@ -50,17 +50,12 @@ namespace ThePortal
             //authService
             services.AddScoped<IAuthenticationService,AuthService>();
             //facebook api keys
-            var facebookApiKeys = new FacebookApiKeys();
-            facebookApiKeys.ClientId = Configuration["ApiKeys:FacebookApiKeys:ClientId"];
-            facebookApiKeys.ClientSecret = Configuration["ApiKeys:FacebookApiKeys:ClientSecret"];
+            var facebookApiKeys = Configuration.GetSection("ApiKeys:FacebookApiKeys").Get<FacebookApiKeys>();
             services.AddSingleton<FacebookApiKeys>(facebookApiKeys);
             //jwt key
-            var jwtKey = new JwtConfig()
-            {
-                SecretKey = Configuration["JwtConfig:SecretKey"]
-            };
+            var jwtConfig = Configuration.GetSection("JwtConfig").Get<JwtConfig>();
 
-            services.AddSingleton<JwtConfig>(jwtKey);
+            services.AddSingleton<JwtConfig>(jwtConfig);
             //authentication
             services.AddAuthentication(options => {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -77,7 +72,8 @@ namespace ThePortal
                         ValidateIssuer = false,
                         ValidateAudience = false,
                         RequireExpirationTime = false,
-                        ValidateLifetime = true
+                        ValidateLifetime = true,
+                        //ValidAlgorithms = [SecurityAlgorithms.HmacSha512Signature]
                 };
              });
             //identity

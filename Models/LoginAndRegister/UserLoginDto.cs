@@ -14,5 +14,7 @@ namespace ThePortal.Models.Authentication
         [Required]
         [DataType(DataType.Password)]
         public string Password { get; set; }
+
+        public bool Refreshtoken { get; set; }
     }
 }

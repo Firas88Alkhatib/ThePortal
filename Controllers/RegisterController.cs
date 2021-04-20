@@ -52,6 +52,7 @@ namespace ThePortal.Controllers
                 FacebookData = user.FacebookData ?? new FacebookData(),
                 GoogleData = user.GoogleData ?? new GoogleData()
             };
+
             IdentityResult result = await _userManager.CreateAsync(newUser, user.Password);
             if (!result.Succeeded)
             {
@@ -63,6 +64,19 @@ namespace ThePortal.Controllers
             }
 
             string accessToken = _authService.GenerateAccessToken(newUser);
+            var refreshtoken = _authService.GenerateRefreshToken(accessToken);
+            newUser.RefreshToken = refreshtoken;
+
+            var updateResult = await _userManager.UpdateAsync(newUser);
+            if (!updateResult.Succeeded)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                   new AuthenticationResponse()
+                   {
+                       Success = false,
+                       Error = string.Join(",", updateResult.Errors.Select(c => c.Description).ToList())
+                   });
+            }
 
             return Ok(new AuthenticationResponse()
             {

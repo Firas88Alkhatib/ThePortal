@@ -8,5 +8,7 @@ namespace ThePortal.Models.Authentication
         public string Error { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string AccessToken { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string RefreshToken { get; set; }
     }
 }

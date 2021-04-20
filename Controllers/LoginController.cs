@@ -53,11 +53,22 @@ namespace ThePortal.Controllers
                 });
             }
             var accessToken = _auth.GenerateAccessToken(user);
-            return Ok(new AuthenticationResponse()
+
+            var response = new AuthenticationResponse()
             {
                 Success = true,
-                AccessToken = accessToken
-            });
+                AccessToken = accessToken,
+            };
+
+            if (loginDto.Refreshtoken)
+            {
+                var newRefreshToken = _auth.GenerateRefreshToken(accessToken);
+                user.RefreshToken = newRefreshToken;
+                await _userManager.UpdateAsync(user);
+                response.RefreshToken = newRefreshToken.Token;
+            }
+
+            return Ok(response);
         }
     }
 }
